@@ -120,41 +120,104 @@
             height: 100%;
         }
 
-        /* Wheat Visual */
+        /* Wheat Field - FIXED */
         #wheat-container {
-            position: absolute;
+            position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 200px; /* Set a fixed height for the visual area */
+            height: 200px;
             pointer-events: none;
-            z-index: 5;
+            z-index: 15;
             display: flex;
-            justify-content: center;
+            justify-content: space-around;
             align-items: flex-end;
-            gap: -20px; /* Overlap the wheat stalks */
+            padding: 0 2%;
             opacity: 0;
             transition: opacity 0.5s ease-in-out;
-            overflow: hidden;
         }
-        .wheat-sheaf {
-            /* Static visual, no animation needed */
-            flex-shrink: 0; /* Prevent stalks from shrinking */
+        #wheat-container.show {
+            opacity: 1;
+        }
+        .wheat-stalk {
+            width: 4px;
+            height: 120px;
+            background: linear-gradient(to top, #92400e, #d97706);
+            position: relative;
+            transform-origin: bottom center;
+            animation: sway ease-in-out infinite;
+            flex-shrink: 0;
+        }
+        .wheat-head {
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 14px;
+            height: 26px;
+            background: #f59e0b;
+            border-radius: 50% 50% 0 0;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+        }
+        .wheat-grain {
+            position: absolute;
+            width: 5px;
+            height: 7px;
+            background: #fbbf24;
+            border-radius: 50%;
+            box-shadow: 0 0 4px rgba(251, 191, 36, 0.7);
+        }
+        @keyframes sway {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(4deg); }
+            75% { transform: rotate(-4deg); }
+        }
+        
+        /* Lantern Animation */
+        #lantern-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 5;
+        }
+        .lantern {
+            position: absolute;
+            bottom: -150px;
+            width: 60px;
+            height: 96px;
+            opacity: 0;
+            animation: float-up linear infinite;
+            filter: drop-shadow(0 0 10px #ef4444);
         }
 
+        @keyframes float-up {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateY(-50vh) translateX(20px) rotate(5deg);
+            }
+            90% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(-20px) rotate(-5deg);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen w-full flex items-center justify-center p-4 overflow-hidden relative">
     <svg style="position: absolute; width: 0; height: 0;" aria-hidden="true">
         <defs>
-            <symbol id="wheat-stalk" viewBox="0 0 24 100">
-                <path d="M12 100 V 18" stroke="#f59e0b" stroke-width="2" filter="url(#glow)"/>
-                <path d="M12 25 Q 18 23 20 18" stroke="#f59e0b" stroke-width="1.5" fill="none" filter="url(#glow)"/>
-                <path d="M12 30 Q 6 28 4 23" stroke="#f59e0b" stroke-width="1.5" fill="none" filter="url(#glow)"/>
-                <path d="M12 35 Q 18 33 20 28" stroke="#f59e0b" stroke-width="1.5" fill="none" filter="url(#glow)"/>
-                <path d="M12 40 Q 6 38 4 33" stroke="#f59e0b" stroke-width="1.5" fill="none" filter="url(#glow)"/>
-                <ellipse cx="12" cy="12" rx="5" ry="8" fill="#facc15"/>
-            </symbol>
             <filter id="glow">
                 <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
                 <feMerge>
@@ -162,11 +225,26 @@
                     <feMergeNode in="SourceGraphic"/>
                 </feMerge>
             </filter>
+            <symbol id="lantern" viewBox="0 0 50 80">
+                <g filter="url(#glow)">
+                    <ellipse cx="25" cy="30" rx="24" ry="28" fill="url(#lantern-gradient)"/>
+                    <path d="M25 2 v 56" stroke="#9A3412" stroke-width="0.5" />
+                    <path d="M1 30 Q 25 35 49 30" stroke="#9A3412" stroke-width="0.5" fill="none"/>
+                    <path d="M1 30 Q 25 25 49 30" stroke="#9A3412" stroke-width="0.5" fill="none"/>
+                </g>
+                <path d="M25 58 v 10" stroke="#DC2626" stroke-width="1.5" />
+                <circle cx="25" cy="72" r="3" fill="#DC2626" />
+            </symbol>
+            <radialGradient id="lantern-gradient">
+                <stop offset="10%" stop-color="#FEE2E2"/>
+                <stop offset="90%" stop-color="#F87171"/>
+            </radialGradient>
         </defs>
     </svg>
 
     <div id="leaf-container"></div>
     <div id="wheat-container"></div>
+    <div id="lantern-container"></div>
     <div id="equinox-container" class="hidden">
         <svg viewBox="0 0 1000 500" class="w-full h-full">
             <defs>
@@ -209,16 +287,13 @@
     <div id="star-container"></div>
 
     <main class="w-full max-w-4xl mx-auto text-center relative z-40">
-        <!-- Moon -->
         <div id="harvestMoon" class="w-48 h-48 md:w-64 md:h-64 bg-yellow-100 rounded-full mx-auto mb-[-60px] moon flex items-center justify-center">
              <div class="w-40 h-40 md:w-56 md:h-56 bg-orange-100 rounded-full opacity-50"></div>
         </div>
 
         <div class="relative flex flex-col items-center">
-            <!-- Fox Avatar -->
             <div id="foxAvatar" class="fox-container cursor-pointer w-48 h-48 relative drop-shadow-2xl flex justify-center items-end">
                 <svg viewBox="0 0 180 180" class="w-full h-full">
-                    <!-- ... SVG code for the fox (unchanged) ... -->
                     <g class="fox-tail"><ellipse cx="30" cy="135" rx="22" ry="40" fill="#f97316" transform="rotate(-35 30 135)"/><ellipse cx="25" cy="140" rx="10" ry="20" fill="#FEF3C7" transform="rotate(-35 25 140)"/></g><ellipse cx="80" cy="145" rx="12" ry="18" fill="#6D4C41"/><ellipse cx="80" cy="160" rx="10" ry="8" fill="#6D4C41"/><ellipse cx="90" cy="120" rx="40" ry="50" fill="#f97316"/><ellipse cx="105" cy="145" rx="12" ry="18" fill="#6D4C41"/><ellipse cx="105" cy="160" rx="10" ry="8" fill="#6D4C41"/><ellipse cx="90" cy="130" rx="25" ry="32" fill="#FEF3C7"/><g class="fox-head"><circle cx="90" cy="75" r="35" fill="#f97316"/><g class="fox-ear" transform-origin="70 50"><path d="M 70 50 L 60 25 L 75 45 Z" fill="#f97316"/><path d="M 70 50 L 65 32 L 73 45 Z" fill="#FEF3C7"/></g><g class="fox-ear" transform-origin="110 50"><path d="M 110 50 L 120 25 L 105 45 Z" fill="#f97316"/><path d="M 110 50 L 115 32 L 107 45 Z" fill="#FEF3C7"/></g><ellipse cx="90" cy="88" rx="18" ry="14" fill="#FEF3C7"/><ellipse cx="78" cy="72" rx="5" ry="7" fill="#000"/><ellipse cx="79" cy="70" rx="2" ry="2" fill="#fff"/><ellipse cx="102" cy="72" rx="5" ry="7" fill="#000"/><ellipse cx="103" cy="70" rx="2" ry="2" fill="#fff"/><ellipse cx="90" cy="85" rx="5" ry="4" fill="#6D4C41"/><path d="M 90 85 L 90 90" stroke="#6D4C41" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M 85 93 Q 90 95 95 93" stroke="#6D4C41" stroke-width="2" stroke-linecap="round" fill="none"/><ellipse cx="68" cy="80" rx="8" ry="6" fill="#ff8c42" opacity="0.3"/><ellipse cx="112" cy="80" rx="8" ry="6" fill="#ff8c42" opacity="0.3"/></g>
                 </svg>
             </div>
@@ -261,10 +336,10 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- DOM Elements ---
             const starContainer = document.getElementById('star-container');
             const leafContainer = document.getElementById('leaf-container');
             const wheatContainer = document.getElementById('wheat-container');
+            const lanternContainer = document.getElementById('lantern-container');
             const equinoxContainer = document.getElementById('equinox-container');
             const harvestMoon = document.getElementById('harvestMoon');
             const foxAvatar = document.getElementById('foxAvatar');
@@ -281,13 +356,11 @@
             const secondsEl = document.getElementById('seconds');
             const timerContainer = document.getElementById('timer');
 
-            // --- State ---
             let isPlaying = false;
             let currentTextToSpeak = '';
             let audioPlayer = new Audio();
-            const apiKey = ""; // API key is handled by the environment
+            const apiKey = "";
             
-            // --- Countdown Timer ---
             const harvestMoonDate = new Date('2025-10-06T21:47:00-06:00');
 
             function updateCountdown() {
@@ -312,7 +385,7 @@
             }
 
             const countdownInterval = setInterval(updateCountdown, 1000);
-            updateCountdown(); // Initial call
+            updateCountdown();
 
             const foxAnswers = {
                 meaning: "The Harvest Moon is the full moon that occurs nearest to the start of autumn, or the autumnal equinox. It's a time of balance, with nearly equal hours of daylight and darkness.",
@@ -324,7 +397,6 @@
                 supermoon: "It can be! If the Harvest Moon also happens when the moon is closest to Earth in its orbit (called its perige), it's considered a 'Super Harvest Moon.' It looks even bigger and brighter than usual."
             };
 
-            // --- Special Effects ---
             function createFallingLeaves() {
                 leafContainer.innerHTML = '';
                 const leafCount = 20;
@@ -344,26 +416,54 @@
             
             function createWheatSheaves() {
                 wheatContainer.innerHTML = '';
-                const sheafCount = 40; // Increased for a fuller field look
+                const sheafCount = 30;
+                
                 for (let i = 0; i < sheafCount; i++) {
-                    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                    svg.setAttribute('class', 'wheat-sheaf');
-                    const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
-                    use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#wheat-stalk');
-                    svg.appendChild(use);
+                    const stalk = document.createElement('div');
+                    stalk.className = 'wheat-stalk';
                     
-                    const randomScale = Math.random() * 0.5 + 0.8; // scale between 0.8 and 1.3
-                    const randomRotate = Math.random() * 15 - 7.5; // rotate between -7.5deg and 7.5deg
-                    svg.style.transform = `scale(${randomScale}) rotate(${randomRotate}deg)`;
-                    svg.style.width = `${30 * randomScale}px`;
-                    svg.style.height = `${150 * randomScale}px`;
-                    svg.style.opacity = Math.random() * 0.3 + 0.6; // random opacity between 0.6 and 0.9
+                    const height = Math.random() * 50 + 90;
+                    stalk.style.height = height + 'px';
+                    stalk.style.animationDuration = (Math.random() * 2 + 2.5) + 's';
+                    stalk.style.animationDelay = (Math.random() * 2) + 's';
+                    
+                    const head = document.createElement('div');
+                    head.className = 'wheat-head';
+                    
+                    for (let j = 0; j < 5; j++) {
+                        const grain = document.createElement('div');
+                        grain.className = 'wheat-grain';
+                        grain.style.top = (j * 4) + 'px';
+                        grain.style.left = (j % 2 === 0 ? -2 : 10) + 'px';
+                        head.appendChild(grain);
+                    }
+                    
+                    stalk.appendChild(head);
+                    wheatContainer.appendChild(stalk);
+                }
+                
+                wheatContainer.classList.add('show');
+            }
 
-                    wheatContainer.appendChild(svg);
+            function createLanterns() {
+                lanternContainer.innerHTML = '';
+                const lanternCount = 12;
+                for (let i = 0; i < lanternCount; i++) {
+                    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                    svg.setAttribute('class', 'lantern');
+                    const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+                    use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#lantern');
+                    svg.appendChild(use);
+
+                    svg.style.left = `${Math.random() * 90}%`;
+                    svg.style.animationDuration = `${Math.random() * 15 + 15}s`;
+                    svg.style.animationDelay = `${Math.random() * 20}s`;
+                    const scale = Math.random() * 0.4 + 0.8;
+                    svg.style.transform = `scale(${scale})`;
+                    lanternContainer.appendChild(svg);
                 }
             }
 
-            // --- Starry Background ---
             function createStars() {
                 const starCount = 100;
                 for (let i = 0; i < starCount; i++) {
@@ -380,32 +480,30 @@
                 }
             }
 
-            // --- UI State Management ---
             function showQuestions() {
                 welcomeMessage.classList.add('hidden');
                 responseBox.classList.add('hidden');
                 questionContainer.classList.remove('hidden');
                 questionContainer.classList.add('flex', 'fade-in');
-                // Clear all special effects
+                
                 leafContainer.innerHTML = ''; 
-                wheatContainer.style.opacity = '0';
-                setTimeout(() => wheatContainer.innerHTML = '', 500); // Clear after fade out
+                wheatContainer.classList.remove('show');
+                lanternContainer.innerHTML = '';
                 equinoxContainer.classList.add('hidden');
                 harvestMoon.classList.remove('hidden');
+                
                 if (isPlaying) {
                     audioPlayer.pause();
                 }
             }
 
             function showResponse(topic) {
-                // Hide all special content first
                 leafContainer.innerHTML = '';
-                wheatContainer.style.opacity = '0';
-                setTimeout(() => wheatContainer.innerHTML = '', 500);
+                wheatContainer.classList.remove('show');
+                lanternContainer.innerHTML = '';
                 equinoxContainer.classList.add('hidden');
                 harvestMoon.classList.remove('hidden');
 
-                // Show special content based on topic
                 if (topic === 'meaning') {
                     createFallingLeaves();
                 } else if (topic === 'timing') {
@@ -414,7 +512,8 @@
                     equinoxContainer.classList.add('fade-in');
                 } else if (topic === 'name') {
                     createWheatSheaves();
-                    setTimeout(() => wheatContainer.style.opacity = '1', 50); // Fade in
+                } else if (topic === 'culture') {
+                    createLanterns();
                 }
 
                 currentTextToSpeak = foxAnswers[topic] || "I'm not sure about that, but isn't the moon lovely?";
@@ -426,7 +525,6 @@
                 speakButton.classList.add('flex');
             }
 
-            // --- Audio Conversion & Playback ---
             function base64ToArrayBuffer(base64) {
                 const binaryString = window.atob(base64);
                 const len = binaryString.length;
@@ -439,7 +537,7 @@
 
             function pcmToWav(pcmData, sampleRate) {
                 const numChannels = 1;
-                const bytesPerSample = 2; // 16-bit PCM
+                const bytesPerSample = 2;
                 const blockAlign = numChannels * bytesPerSample;
                 const byteRate = sampleRate * blockAlign;
                 const dataSize = pcmData.length * bytesPerSample;
@@ -523,7 +621,6 @@
                 }
             }
 
-            // --- Event Listeners ---
             foxAvatar.addEventListener('click', showQuestions);
             backButton.addEventListener('click', showQuestions);
 
@@ -544,10 +641,8 @@
                 speakButton.classList.remove('speaker-playing');
             };
 
-            // --- Initial Setup ---
             createStars();
         });
     </script>
 </body>
 </html>
-
