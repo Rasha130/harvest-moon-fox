@@ -265,11 +265,11 @@
                         type="rotate"
                         values="23.5;0;-23.5;0;23.5"
                         keyTimes="0;0.25;0.5;0.75;1"
-                        dur="20s"
+                        dur="8s"
                         repeatCount="indefinite" />
                 </g>
             </g>
-            <animateMotion xlink:href="#orbit-group" dur="20s" repeatCount="indefinite" rotate="auto">
+            <animateMotion xlink:href="#orbit-group" dur="8s" repeatCount="indefinite" rotate="auto">
                 <mpath xlink:href="#orbit-path"/>
             </animateMotion>
             <path id="orbit-path" d="M 500,50 A 400 200 0 1 1 499.9,50 Z" fill="none"/>
@@ -456,8 +456,8 @@
                     svg.appendChild(use);
 
                     svg.style.left = `${Math.random() * 90}%`;
-                    svg.style.animationDuration = `${Math.random() * 15 + 15}s`;
-                    svg.style.animationDelay = `${Math.random() * 20}s`;
+                    svg.style.animationDuration = `${Math.random() * 6 + 8}s`;
+                    svg.style.animationDelay = `${Math.random() * 4}s`;
                     const scale = Math.random() * 0.4 + 0.8;
                     svg.style.transform = `scale(${scale})`;
                     lanternContainer.appendChild(svg);
