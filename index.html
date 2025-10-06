@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harvest Moon Fox</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #0b0f2b 0%, #1d2b53 50%, #ff8c42 100%);
+        }
+        .font-serif-display {
+            font-family: 'Playfair Display', serif;
+        }
+        .moon {
+            box-shadow: 0 0 60px 15px rgba(255, 239, 213, 0.7), 0 0 100px 50px rgba(255, 165, 0, 0.5);
+        }
+        .fox-container:hover .fox-tail {
+            transform: rotate(-10deg);
+        }
+        .fox-tail {
+            transition: transform 0.3s ease-in-out;
+            transform-origin: 30px 135px;
+        }
+        .fox-container:hover .fox-head {
+             transform: translateX(2px) rotate(-3deg);
+        }
+        .fox-head {
+             transition: transform 0.3s ease-in-out;
+             transform-origin: center;
+        }
+        .fox-ear {
+            transition: transform 0.3s ease-in-out;
+        }
+        .fox-container:hover .fox-ear {
+            transform: rotate(5deg);
+        }
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle 5s infinite;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        .question-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .question-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .speaker-playing svg {
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        /* Falling Leaves Animation */
+        #leaf-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 5;
+        }
+        .leaf {
+            position: absolute;
+            top: -50px;
+            width: 20px;
+            height: 20px;
+            background-color: #f97316;
+            border-radius: 0% 50% 0% 50%;
+            animation: fall linear infinite;
+            opacity: 0.8;
+        }
+        .leaf.orange { background-color: #f59e0b; }
+        .leaf.red { background-color: #ef4444; }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Equinox Animation */
+        #equinox-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.4;
+        }
+        #equinox-container svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Wheat Visual */
+        #wheat-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px; /* Set a fixed height for the visual area */
+            pointer-events: none;
+            z-index: 5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: -20px; /* Overlap the wheat stalks */
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            overflow: hidden;
+        }
+        .wheat-sheaf {
+            /* Static visual, no animation needed */
+            flex-shrink: 0; /* Prevent stalks from shrinking */
+        }
+
+    </style>
+</head>
+<body class="min-h-screen w-full flex items-center justify-center p-4 overflow-hidden relative">
+    <svg style="position: absolute; width: 0; height: 0;" aria-hidden="true">
+        <defs>
+            <symbol id="wheat-stalk" viewBox="0 0 24 100">
+                <path d="M12 100 V 18" stroke="#f59e0b" stroke-width="2" filter="url(#glow)"/>
+                <path d="M12 25 Q 18 23 20 18" stroke="#f59e0b" stroke-width="1.5" fill="none" filter="url(#glow)"/>
+                <path d="M12 30 Q 6 28 4 23" stroke="#f59e0b" stroke-width="1.5" fill="none" filter="url(#glow)"/>
+                <path d="M12 35 Q 18 33 20 28" stroke="#f59e0b" stroke-width="1.5" fill="none" filter="url(#glow)"/>
+                <path d="M12 40 Q 6 38 4 33" stroke="#f59e0b" stroke-width="1.5" fill="none" filter="url(#glow)"/>
+                <ellipse cx="12" cy="12" rx="5" ry="8" fill="#facc15"/>
+            </symbol>
+            <filter id="glow">
+                <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+                <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+            </filter>
+        </defs>
+    </svg>
+
+    <div id="leaf-container"></div>
+    <div id="wheat-container"></div>
+    <div id="equinox-container" class="hidden">
+        <svg viewBox="0 0 1000 500" class="w-full h-full">
+            <defs>
+                <radialGradient id="sun-gradient">
+                    <stop offset="0%" stop-color="#fff7b3" />
+                    <stop offset="100%" stop-color="#f9d71c" />
+                </radialGradient>
+            </defs>
+            <circle cx="500" cy="250" r="50" fill="url(#sun-gradient)"/>
+            <ellipse cx="500" cy="250" rx="400" ry="200" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+            <g id="orbit-group">
+                <g>
+                    <circle r="15" fill="#3b82f6" />
+                    <path d="M 0 -18 L 0 18" stroke="#fff" stroke-width="1.5" />
+                    <animateTransform
+                        attributeName="transform"
+                        attributeType="XML"
+                        type="rotate"
+                        values="23.5;0;-23.5;0;23.5"
+                        keyTimes="0;0.25;0.5;0.75;1"
+                        dur="20s"
+                        repeatCount="indefinite" />
+                </g>
+            </g>
+            <animateMotion xlink:href="#orbit-group" dur="20s" repeatCount="indefinite" rotate="auto">
+                <mpath xlink:href="#orbit-path"/>
+            </animateMotion>
+            <path id="orbit-path" d="M 500,50 A 400 200 0 1 1 499.9,50 Z" fill="none"/>
+        </svg>
+    </div>
+    <div id="countdown-container" class="absolute top-0 left-0 right-0 p-4 text-center text-white z-50 bg-black bg-opacity-20 backdrop-blur-sm">
+        <h2 class="text-lg font-serif-display text-orange-200">Next Harvest Moon: October 6, 2025</h2>
+        <div id="timer" class="text-2xl md:text-3xl font-bold tracking-wider">
+            <span id="hours">00</span>h
+            <span id="minutes">00</span>m
+            <span id="seconds">00</span>s
+        </div>
+    </div>
+    
+    <div id="star-container"></div>
+
+    <main class="w-full max-w-4xl mx-auto text-center relative z-40">
+        <!-- Moon -->
+        <div id="harvestMoon" class="w-48 h-48 md:w-64 md:h-64 bg-yellow-100 rounded-full mx-auto mb-[-60px] moon flex items-center justify-center">
+             <div class="w-40 h-40 md:w-56 md:h-56 bg-orange-100 rounded-full opacity-50"></div>
+        </div>
+
+        <div class="relative flex flex-col items-center">
+            <!-- Fox Avatar -->
+            <div id="foxAvatar" class="fox-container cursor-pointer w-48 h-48 relative drop-shadow-2xl flex justify-center items-end">
+                <svg viewBox="0 0 180 180" class="w-full h-full">
+                    <!-- ... SVG code for the fox (unchanged) ... -->
+                    <g class="fox-tail"><ellipse cx="30" cy="135" rx="22" ry="40" fill="#f97316" transform="rotate(-35 30 135)"/><ellipse cx="25" cy="140" rx="10" ry="20" fill="#FEF3C7" transform="rotate(-35 25 140)"/></g><ellipse cx="80" cy="145" rx="12" ry="18" fill="#6D4C41"/><ellipse cx="80" cy="160" rx="10" ry="8" fill="#6D4C41"/><ellipse cx="90" cy="120" rx="40" ry="50" fill="#f97316"/><ellipse cx="105" cy="145" rx="12" ry="18" fill="#6D4C41"/><ellipse cx="105" cy="160" rx="10" ry="8" fill="#6D4C41"/><ellipse cx="90" cy="130" rx="25" ry="32" fill="#FEF3C7"/><g class="fox-head"><circle cx="90" cy="75" r="35" fill="#f97316"/><g class="fox-ear" transform-origin="70 50"><path d="M 70 50 L 60 25 L 75 45 Z" fill="#f97316"/><path d="M 70 50 L 65 32 L 73 45 Z" fill="#FEF3C7"/></g><g class="fox-ear" transform-origin="110 50"><path d="M 110 50 L 120 25 L 105 45 Z" fill="#f97316"/><path d="M 110 50 L 115 32 L 107 45 Z" fill="#FEF3C7"/></g><ellipse cx="90" cy="88" rx="18" ry="14" fill="#FEF3C7"/><ellipse cx="78" cy="72" rx="5" ry="7" fill="#000"/><ellipse cx="79" cy="70" rx="2" ry="2" fill="#fff"/><ellipse cx="102" cy="72" rx="5" ry="7" fill="#000"/><ellipse cx="103" cy="70" rx="2" ry="2" fill="#fff"/><ellipse cx="90" cy="85" rx="5" ry="4" fill="#6D4C41"/><path d="M 90 85 L 90 90" stroke="#6D4C41" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M 85 93 Q 90 95 95 93" stroke="#6D4C41" stroke-width="2" stroke-linecap="round" fill="none"/><ellipse cx="68" cy="80" rx="8" ry="6" fill="#ff8c42" opacity="0.3"/><ellipse cx="112" cy="80" rx="8" ry="6" fill="#ff8c42" opacity="0.3"/></g>
+                </svg>
+            </div>
+            
+            <div id="interaction-panel" class="w-full mt-4">
+                <div id="welcomeMessage" class="fade-in">
+                    <h1 class="font-serif-display text-4xl md:text-5xl text-white drop-shadow-lg">Happy Harvest Moon!</h1>
+                    <p class="text-orange-200 mt-2 text-lg">I'm the Harvest Moon fox. Tap me to learn more!</p>
+                </div>
+                
+                <div id="questionContainer" class="hidden flex-wrap justify-center gap-3 mt-4 max-w-2xl mx-auto">
+                    <button class="question-btn bg-orange-500 text-white font-semibold py-2 px-4 rounded-full shadow-md hover:bg-orange-600" data-topic="meaning">What is the Harvest Moon?</button>
+                    <button class="question-btn bg-orange-500 text-white font-semibold py-2 px-4 rounded-full shadow-md hover:bg-orange-600" data-topic="timing">When does it happen?</button>
+                    <button class="question-btn bg-orange-500 text-white font-semibold py-2 px-4 rounded-full shadow-md hover:bg-orange-600" data-topic="name">Why is it called that?</button>
+                    <button class="question-btn bg-orange-500 text-white font-semibold py-2 px-4 rounded-full shadow-md hover:bg-orange-600" data-topic="culture">Cultural significance?</button>
+                    <button class="question-btn bg-orange-500 text-white font-semibold py-2 px-4 rounded-full shadow-md hover:bg-orange-600" data-topic="color">Why does it look orange?</button>
+                    <button class="question-btn bg-orange-500 text-white font-semibold py-2 px-4 rounded-full shadow-md hover:bg-orange-600" data-topic="folklore">Any special myths?</button>
+                    <button class="question-btn bg-orange-500 text-white font-semibold py-2 px-4 rounded-full shadow-md hover:bg-orange-600" data-topic="supermoon">Is it a "Supermoon"?</button>
+                </div>
+                
+                <div id="responseBox" class="hidden bg-black bg-opacity-40 backdrop-blur-sm p-6 rounded-2xl text-left mt-6 max-w-2xl mx-auto border border-orange-400/30">
+                    <div id="responseContent" class="text-orange-100 prose prose-invert"></div>
+                    
+                    <div id="sourcesContainer" class="mt-4 text-xs text-orange-300/70"></div>
+                     <div class="flex items-center justify-between mt-4">
+                        <button id="backButton" class="bg-white/20 text-white font-semibold py-1 px-3 rounded-full text-sm hover:bg-white/30">Ask another question</button>
+                        <button id="speakButton" class="hidden items-center gap-2 bg-orange-500 text-white font-semibold py-1 px-3 rounded-full text-sm hover:bg-orange-600">
+                            <svg id="speakIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-volume-up" viewBox="0 0 16 16">
+                                <path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z"/>
+                                <path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.482 5.482 0 0 1 11.025 8a5.482 5.482 0 0 1-1.61 3.89l.706.706z"/>
+                                <path d="M8.707 11.182A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475l.707.707zM6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06z"/>
+                            </svg>
+                             <span id="speakButtonText">✨ Hear the Fox</span>
+                        </button>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const starContainer = document.getElementById('star-container');
+            const leafContainer = document.getElementById('leaf-container');
+            const wheatContainer = document.getElementById('wheat-container');
+            const equinoxContainer = document.getElementById('equinox-container');
+            const harvestMoon = document.getElementById('harvestMoon');
+            const foxAvatar = document.getElementById('foxAvatar');
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            const questionContainer = document.getElementById('questionContainer');
+            const questionButtons = document.querySelectorAll('.question-btn');
+            const responseBox = document.getElementById('responseBox');
+            const responseContent = document.getElementById('responseContent');
+            const backButton = document.getElementById('backButton');
+            const speakButton = document.getElementById('speakButton');
+            const speakButtonText = document.getElementById('speakButtonText');
+            const hoursEl = document.getElementById('hours');
+            const minutesEl = document.getElementById('minutes');
+            const secondsEl = document.getElementById('seconds');
+            const timerContainer = document.getElementById('timer');
+
+            // --- State ---
+            let isPlaying = false;
+            let currentTextToSpeak = '';
+            let audioPlayer = new Audio();
+            const apiKey = ""; // API key is handled by the environment
+            
+            // --- Countdown Timer ---
+            const harvestMoonDate = new Date('2025-10-06T21:47:00-06:00');
+
+            function updateCountdown() {
+                const now = new Date();
+                const diff = harvestMoonDate - now;
+
+                if (diff <= 0) {
+                    timerContainer.innerHTML = "The Harvest Moon is here!";
+                    clearInterval(countdownInterval);
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                const totalHours = (days * 24) + hours;
+
+                hoursEl.textContent = String(totalHours).padStart(2, '0');
+                minutesEl.textContent = String(minutes).padStart(2, '0');
+                secondsEl.textContent = String(seconds).padStart(2, '0');
+            }
+
+            const countdownInterval = setInterval(updateCountdown, 1000);
+            updateCountdown(); // Initial call
+
+            const foxAnswers = {
+                meaning: "The Harvest Moon is the full moon that occurs nearest to the start of autumn, or the autumnal equinox. It's a time of balance, with nearly equal hours of daylight and darkness.",
+                timing: "It usually falls in September, but sometimes it can happen in early October. It's not just one night—the moon continues to rise early for several evenings in a row.",
+                name: "It's called the Harvest Moon because its bright light, rising right after sunset, traditionally helped farmers harvest their summer crops late into the night.",
+                culture: "Across many cultures, the Harvest Moon is a time for celebration and festivals, like the Mid-Autumn Festival in East Asia. It symbolizes abundance, gratitude, and gathering with loved ones.",
+                color: "The Harvest Moon often looks orange or reddish when it rises. This is because we're seeing it through more of Earth's atmosphere near the horizon, which scatters blue light and lets the red light pass through to our eyes!",
+                folklore: "Yes! Some folklore says it's a time of transformation or a good omen for a bountiful year. In some European traditions, it was also called the 'Dying Grass Moon' as the season changed.",
+                supermoon: "It can be! If the Harvest Moon also happens when the moon is closest to Earth in its orbit (called its perige), it's considered a 'Super Harvest Moon.' It looks even bigger and brighter than usual."
+            };
+
+            // --- Special Effects ---
+            function createFallingLeaves() {
+                leafContainer.innerHTML = '';
+                const leafCount = 20;
+                const colors = ['orange', 'red', ''];
+                for (let i = 0; i < leafCount; i++) {
+                    const leaf = document.createElement('div');
+                    leaf.className = `leaf ${colors[Math.floor(Math.random() * colors.length)]}`;
+                    leaf.style.left = `${Math.random() * 100}vw`;
+                    leaf.style.animationDuration = `${Math.random() * 5 + 5}s`;
+                    leaf.style.animationDelay = `${Math.random() * 3}s`;
+                    const size = Math.random() * 10 + 10;
+                    leaf.style.width = `${size}px`;
+                    leaf.style.height = `${size}px`;
+                    leafContainer.appendChild(leaf);
+                }
+            }
+            
+            function createWheatSheaves() {
+                wheatContainer.innerHTML = '';
+                const sheafCount = 40; // Increased for a fuller field look
+                for (let i = 0; i < sheafCount; i++) {
+                    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                    svg.setAttribute('class', 'wheat-sheaf');
+                    const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+                    use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#wheat-stalk');
+                    svg.appendChild(use);
+                    
+                    const randomScale = Math.random() * 0.5 + 0.8; // scale between 0.8 and 1.3
+                    const randomRotate = Math.random() * 15 - 7.5; // rotate between -7.5deg and 7.5deg
+                    svg.style.transform = `scale(${randomScale}) rotate(${randomRotate}deg)`;
+                    svg.style.width = `${30 * randomScale}px`;
+                    svg.style.height = `${150 * randomScale}px`;
+                    svg.style.opacity = Math.random() * 0.3 + 0.6; // random opacity between 0.6 and 0.9
+
+                    wheatContainer.appendChild(svg);
+                }
+            }
+
+            // --- Starry Background ---
+            function createStars() {
+                const starCount = 100;
+                for (let i = 0; i < starCount; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    const size = Math.random() * 2 + 1;
+                    star.style.width = `${size}px`;
+                    star.style.height = `${size}px`;
+                    star.style.top = `${Math.random() * 100}%`;
+                    star.style.left = `${Math.random() * 100}%`;
+                    star.style.animationDelay = `${Math.random() * 5}s`;
+                    star.style.animationDuration = `${Math.random() * 3 + 3}s`;
+                    starContainer.appendChild(star);
+                }
+            }
+
+            // --- UI State Management ---
+            function showQuestions() {
+                welcomeMessage.classList.add('hidden');
+                responseBox.classList.add('hidden');
+                questionContainer.classList.remove('hidden');
+                questionContainer.classList.add('flex', 'fade-in');
+                // Clear all special effects
+                leafContainer.innerHTML = ''; 
+                wheatContainer.style.opacity = '0';
+                setTimeout(() => wheatContainer.innerHTML = '', 500); // Clear after fade out
+                equinoxContainer.classList.add('hidden');
+                harvestMoon.classList.remove('hidden');
+                if (isPlaying) {
+                    audioPlayer.pause();
+                }
+            }
+
+            function showResponse(topic) {
+                // Hide all special content first
+                leafContainer.innerHTML = '';
+                wheatContainer.style.opacity = '0';
+                setTimeout(() => wheatContainer.innerHTML = '', 500);
+                equinoxContainer.classList.add('hidden');
+                harvestMoon.classList.remove('hidden');
+
+                // Show special content based on topic
+                if (topic === 'meaning') {
+                    createFallingLeaves();
+                } else if (topic === 'timing') {
+                    harvestMoon.classList.add('hidden');
+                    equinoxContainer.classList.remove('hidden');
+                    equinoxContainer.classList.add('fade-in');
+                } else if (topic === 'name') {
+                    createWheatSheaves();
+                    setTimeout(() => wheatContainer.style.opacity = '1', 50); // Fade in
+                }
+
+                currentTextToSpeak = foxAnswers[topic] || "I'm not sure about that, but isn't the moon lovely?";
+                responseContent.textContent = currentTextToSpeak;
+                questionContainer.classList.add('hidden');
+                responseBox.classList.remove('hidden');
+                responseBox.classList.add('fade-in');
+                speakButton.classList.remove('hidden');
+                speakButton.classList.add('flex');
+            }
+
+            // --- Audio Conversion & Playback ---
+            function base64ToArrayBuffer(base64) {
+                const binaryString = window.atob(base64);
+                const len = binaryString.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                return bytes.buffer;
+            }
+
+            function pcmToWav(pcmData, sampleRate) {
+                const numChannels = 1;
+                const bytesPerSample = 2; // 16-bit PCM
+                const blockAlign = numChannels * bytesPerSample;
+                const byteRate = sampleRate * blockAlign;
+                const dataSize = pcmData.length * bytesPerSample;
+                const buffer = new ArrayBuffer(44 + dataSize);
+                const view = new DataView(buffer);
+                view.setUint32(0, 0x52494646, false);
+                view.setUint32(4, 36 + dataSize, true);
+                view.setUint32(8, 0x57415645, false);
+                view.setUint32(12, 0x666d7420, false);
+                view.setUint32(16, 16, true);
+                view.setUint16(20, 1, true);
+                view.setUint16(22, numChannels, true);
+                view.setUint32(24, sampleRate, true);
+                view.setUint32(28, byteRate, true);
+                view.setUint16(32, blockAlign, true);
+                view.setUint16(34, 16, true);
+                view.setUint32(36, 0x64617461, false);
+                view.setUint32(40, dataSize, true);
+                let offset = 44;
+                for (let i = 0; i < pcmData.length; i++, offset += 2) {
+                    view.setInt16(offset, pcmData[i], true);
+                }
+                return new Blob([view], { type: 'audio/wav' });
+            }
+
+            async function speakText(text) {
+                if (isPlaying) return;
+                isPlaying = true;
+                speakButtonText.textContent = 'Thinking...';
+                speakButton.disabled = true;
+
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+                const payload = {
+                    contents: [{ parts: [{ text: `Say in a gentle, friendly voice: ${text}` }] }],
+                    generationConfig: {
+                        responseModalities: ["AUDIO"],
+                        speechConfig: {
+                            voiceConfig: { prebuiltVoiceConfig: { voiceName: "Puck" } }
+                        }
+                    },
+                    model: "gemini-2.5-flash-preview-tts"
+                };
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+                    
+                    const result = await response.json();
+                    const part = result?.candidates?.[0]?.content?.parts?.[0];
+                    const audioData = part?.inlineData?.data;
+                    const mimeType = part?.inlineData?.mimeType;
+
+                    if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                        speakButtonText.textContent = 'Speaking...';
+                        speakButton.classList.add('speaker-playing');
+                        
+                        const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)[1], 10);
+                        const pcmData = base64ToArrayBuffer(audioData);
+                        const pcm16 = new Int16Array(pcmData);
+                        const wavBlob = pcmToWav(pcm16, sampleRate);
+                        const audioUrl = URL.createObjectURL(wavBlob);
+                        
+                        audioPlayer.src = audioUrl;
+                        audioPlayer.play();
+                    } else {
+                        throw new Error("Invalid audio data received.");
+                    }
+                } catch (error) {
+                    console.error("TTS failed:", error);
+                    speakButtonText.textContent = "Couldn't speak";
+                    setTimeout(() => {
+                        isPlaying = false;
+                        speakButton.disabled = false;
+                        speakButtonText.textContent = "✨ Hear the Fox";
+                    }, 2000);
+                }
+            }
+
+            // --- Event Listeners ---
+            foxAvatar.addEventListener('click', showQuestions);
+            backButton.addEventListener('click', showQuestions);
+
+            questionButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    showResponse(button.dataset.topic);
+                });
+            });
+
+            speakButton.addEventListener('click', () => {
+                speakText(currentTextToSpeak);
+            });
+            
+            audioPlayer.onended = () => {
+                isPlaying = false;
+                speakButton.disabled = false;
+                speakButtonText.textContent = "✨ Hear the Fox";
+                speakButton.classList.remove('speaker-playing');
+            };
+
+            // --- Initial Setup ---
+            createStars();
+        });
+    </script>
+</body>
+</html>
+
