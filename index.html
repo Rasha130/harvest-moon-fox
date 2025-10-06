@@ -225,6 +225,80 @@
                 opacity: 0;
             }
         }
+
+        /* Bat Animation */
+        #bat-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 5;
+        }
+        .bat {
+            position: absolute;
+            width: 40px;
+            height: 30px;
+            opacity: 0;
+            animation: fly-across linear infinite;
+        }
+        @keyframes fly-across {
+            0% {
+                transform: translateX(-100px);
+                opacity: 0;
+            }
+            5% {
+                opacity: 0.7;
+            }
+            95% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateX(calc(100vw + 100px));
+                opacity: 0;
+            }
+        }
+
+        /* Owl Animation */
+        #owl-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 45;
+        }
+        .owl {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            left: -100px;
+            top: 20%;
+            opacity: 0;
+        }
+        .owl.flying {
+            animation: owl-fly-to-moon 3s ease-in-out forwards;
+        }
+        .owl.perched {
+            opacity: 1;
+            transition: none;
+        }
+        @keyframes owl-fly-to-moon {
+            0% {
+                transform: translateX(0) translateY(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(calc(50vw - 30px)) translateY(calc(15vh - 80px));
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen w-full flex items-center justify-center p-4 overflow-hidden relative">
@@ -247,6 +321,24 @@
                 <path d="M25 58 v 10" stroke="#DC2626" stroke-width="1.5" />
                 <circle cx="25" cy="72" r="3" fill="#DC2626" />
             </symbol>
+            <symbol id="bat" viewBox="0 0 50 35">
+                <path d="M25 15 Q 15 5, 5 8 Q 2 10, 5 12 Q 10 15, 15 18 L 20 25 L 25 20 Z" fill="#1a1a1a"/>
+                <path d="M25 15 Q 35 5, 45 8 Q 48 10, 45 12 Q 40 15, 35 18 L 30 25 L 25 20 Z" fill="#1a1a1a"/>
+                <ellipse cx="25" cy="18" rx="3" ry="5" fill="#2a2a2a"/>
+                <circle cx="23" cy="17" r="1" fill="#ff6b6b"/>
+                <circle cx="27" cy="17" r="1" fill="#ff6b6b"/>
+            </symbol>
+            <symbol id="owl" viewBox="0 0 50 50">
+                <ellipse cx="25" cy="28" rx="12" ry="15" fill="#8b5a3c"/>
+                <circle cx="25" cy="20" r="10" fill="#a67c52"/>
+                <path d="M 15 15 L 10 8 L 14 12 Z" fill="#8b5a3c"/>
+                <path d="M 35 15 L 40 8 L 36 12 Z" fill="#8b5a3c"/>
+                <circle cx="21" cy="20" r="4" fill="#fff"/>
+                <circle cx="29" cy="20" r="4" fill="#fff"/>
+                <circle cx="21" cy="20" r="2" fill="#000"/>
+                <circle cx="29" cy="20" r="2" fill="#000"/>
+                <path d="M 25 24 L 23 26 L 27 26 Z" fill="#d4a574"/>
+            </symbol>
             <radialGradient id="lantern-gradient">
                 <stop offset="10%" stop-color="#FEE2E2"/>
                 <stop offset="90%" stop-color="#F87171"/>
@@ -257,6 +349,8 @@
     <div id="leaf-container"></div>
     <div id="wheat-container"></div>
     <div id="lantern-container"></div>
+    <div id="bat-container"></div>
+    <div id="owl-container"></div>
     <div id="equinox-container" class="hidden">
         <svg viewBox="0 0 1000 500" class="w-full h-full">
             <defs>
@@ -352,6 +446,8 @@
             const leafContainer = document.getElementById('leaf-container');
             const wheatContainer = document.getElementById('wheat-container');
             const lanternContainer = document.getElementById('lantern-container');
+            const batContainer = document.getElementById('bat-container');
+            const owlContainer = document.getElementById('owl-container');
             const equinoxContainer = document.getElementById('equinox-container');
             const harvestMoon = document.getElementById('harvestMoon');
             const foxAvatar = document.getElementById('foxAvatar');
@@ -476,6 +572,39 @@
                 }
             }
 
+            function createBats() {
+                batContainer.innerHTML = '';
+                const batCount = 8;
+                for (let i = 0; i < batCount; i++) {
+                    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                    svg.setAttribute('class', 'bat');
+                    const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+                    use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#bat');
+                    svg.appendChild(use);
+
+                    svg.style.top = `${Math.random() * 60 + 10}%`;
+                    svg.style.animationDuration = `${Math.random() * 6 + 8}s`;
+                    svg.style.animationDelay = `${Math.random() * 5}s`;
+                    batContainer.appendChild(svg);
+                }
+            }
+
+            function createOwl() {
+                owlContainer.innerHTML = '';
+                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                svg.setAttribute('class', 'owl flying');
+                const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+                use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#owl');
+                svg.appendChild(use);
+                owlContainer.appendChild(svg);
+
+                // After animation completes, make it perched
+                setTimeout(() => {
+                    svg.classList.remove('flying');
+                    svg.classList.add('perched');
+                }, 3000);
+            }
+
             function createStars() {
                 const starCount = 100;
                 for (let i = 0; i < starCount; i++) {
@@ -501,13 +630,15 @@
                 leafContainer.innerHTML = ''; 
                 wheatContainer.classList.remove('show');
                 lanternContainer.innerHTML = '';
+                batContainer.innerHTML = '';
+                owlContainer.innerHTML = '';
                 equinoxContainer.classList.add('hidden');
                 harvestMoon.classList.remove('hidden');
                 harvestMoon.classList.remove('orange-glow');
                 harvestMoon.classList.remove('supermoon');
                 
                 if (isPlaying) {
-                    audioPlayer.pause();
+                    speechSynthesis.cancel();
                 }
             }
 
@@ -515,6 +646,8 @@
                 leafContainer.innerHTML = '';
                 wheatContainer.classList.remove('show');
                 lanternContainer.innerHTML = '';
+                batContainer.innerHTML = '';
+                owlContainer.innerHTML = '';
                 equinoxContainer.classList.add('hidden');
                 harvestMoon.classList.remove('hidden');
                 harvestMoon.classList.remove('orange-glow');
@@ -534,6 +667,9 @@
                     harvestMoon.classList.add('orange-glow');
                 } else if (topic === 'supermoon') {
                     harvestMoon.classList.add('supermoon');
+                } else if (topic === 'folklore') {
+                    createBats();
+                    createOwl();
                 }
 
                 currentTextToSpeak = foxAnswers[topic] || "I'm not sure about that, but isn't the moon lovely?";
