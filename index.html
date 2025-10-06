@@ -16,6 +16,14 @@
         }
         .moon {
             box-shadow: 0 0 60px 15px rgba(255, 239, 213, 0.7), 0 0 100px 50px rgba(255, 165, 0, 0.5);
+            transition: background-color 1s ease, box-shadow 1s ease;
+        }
+        .moon.orange-glow {
+            background-color: #fb923c !important;
+            box-shadow: 0 0 60px 15px rgba(251, 146, 60, 0.9), 0 0 120px 60px rgba(239, 68, 68, 0.6);
+        }
+        .moon.orange-glow > div {
+            background-color: #f97316 !important;
         }
         .fox-container:hover .fox-tail {
             transform: rotate(-10deg);
@@ -491,6 +499,7 @@
                 lanternContainer.innerHTML = '';
                 equinoxContainer.classList.add('hidden');
                 harvestMoon.classList.remove('hidden');
+                harvestMoon.classList.remove('orange-glow');
                 
                 if (isPlaying) {
                     audioPlayer.pause();
@@ -503,6 +512,7 @@
                 lanternContainer.innerHTML = '';
                 equinoxContainer.classList.add('hidden');
                 harvestMoon.classList.remove('hidden');
+                harvestMoon.classList.remove('orange-glow');
 
                 if (topic === 'meaning') {
                     createFallingLeaves();
@@ -514,6 +524,8 @@
                     createWheatSheaves();
                 } else if (topic === 'culture') {
                     createLanterns();
+                } else if (topic === 'color') {
+                    harvestMoon.classList.add('orange-glow');
                 }
 
                 currentTextToSpeak = foxAnswers[topic] || "I'm not sure about that, but isn't the moon lovely?";
