@@ -562,17 +562,23 @@
 
                 currentUtterance = new SpeechSynthesisUtterance(text);
                 
-                // Try to find a pleasant voice
+                // Get only English voices
                 const voices = speechSynthesis.getVoices();
-                const preferredVoice = voices.find(voice => 
-                    voice.name.includes('Google') || 
-                    voice.name.includes('Female') ||
-                    voice.name.includes('Samantha') ||
-                    voice.name.includes('Karen')
-                );
+                const englishVoices = voices.filter(voice => voice.lang.startsWith('en'));
+                
+                // Try to find the best English voice
+                const preferredVoice = 
+                    englishVoices.find(voice => voice.name.includes('Google US English') || voice.name.includes('Samantha')) ||
+                    englishVoices.find(voice => voice.name.includes('Female')) ||
+                    englishVoices.find(voice => voice.name.includes('Google')) ||
+                    englishVoices.find(voice => voice.name.includes('Microsoft') && voice.name.includes('Zira')) ||
+                    englishVoices[0]; // Fallback to first English voice
                 
                 if (preferredVoice) {
                     currentUtterance.voice = preferredVoice;
+                    currentUtterance.lang = 'en-US';
+                } else {
+                    currentUtterance.lang = 'en-US'; // Force English even if no specific voice found
                 }
                 
                 currentUtterance.rate = 0.9;
